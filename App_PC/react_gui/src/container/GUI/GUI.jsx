@@ -1,7 +1,6 @@
 import { Box, useTheme } from "@mui/material";
 import User from "./User";
 import SignalEffect from "./SignalEffect";
-import AllPeers from "./AllPeers";
 import UserManager from "../UserManager";
 
 function GUI() {
@@ -11,9 +10,7 @@ function GUI() {
     return (
         <Box sx={{ bgcolor: 'background.default' }} className='-z-10 relative flex flex-col h-full'>
             <SignalEffect />
-            <UserManager/>
-            <AllPeers/>
-
+            <UserManager />
             <User />
         </Box>
     )

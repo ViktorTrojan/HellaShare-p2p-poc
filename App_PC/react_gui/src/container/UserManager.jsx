@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import AllPeers from './GUI/AllPeers';
 
+// TODO: rename to PeerManager
 const UserManager = () => {
+    // stors all the peers information
+    const [peers, setPeers] = useState()
     let ws;
-    const [users, setUsers] = useState();
 
     const eventManager = (event, data) => {
         switch (event) {
             case "SetID":
                 setId(data.peerID);
             case "UserList":
-                console.log(data)
+                setPeers({ ...peers, data })
         }
     }
     const setId = (peerID) => {
@@ -21,22 +24,23 @@ const UserManager = () => {
         }))
     }
 
-    useEffect(_ => {
+    useEffect(() => {
         ws = new WebSocket("ws://127.0.0.1:8080")
         ws.onmessage = (msg) => {
             let data = JSON.parse(msg.data)
             let { event, peerID } = data
             eventManager(event, data);
-        }
-    }, [])
 
-    return (
+        }
+    }, []);
+
+    return(
         <div>
-            <li>
-                {users}
-            </li>
+            <AllPeers peers={peers}/>
         </div>
-    )
+    );
 }
+
+
 
 export default UserManager;

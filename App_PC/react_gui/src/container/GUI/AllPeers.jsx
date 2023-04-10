@@ -1,22 +1,31 @@
 import { Box } from "@mui/material";
-
-const Peer = () => {
-
+import { useState } from "react";
+import {UserManager} from "../UserManager"
+const Peer = ({user}) => {
     return (
         <Box className='w-20 h-20 bg-slate-100 rounded-full'>
+            {user.name}
 
         </Box>
     );
 }
 
-function AllPeers() {
+function AllPeers({peers}) {
+
+    useEffect(() => {
+
+        // ws shit and add the peers to that list
+
+
+    }, []);
+
     return (
         <div className="flex h-full flex-wrap gap-2">
-            <Peer/>
-            <Peer/>
-            <Peer/>
-            <Peer/>
-            <Peer/>
+            {
+                peers.map((user) => {
+                    <Peer user={user}/>
+                })
+            }
         </div>
     );
 }
