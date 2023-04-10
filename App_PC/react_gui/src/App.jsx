@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { GUI, PeerManager } from './container'
+import { GUI, PeerManager, UserManager } from './container'
 import { FormManager, ThemeManager } from './other'
 
 function App() {

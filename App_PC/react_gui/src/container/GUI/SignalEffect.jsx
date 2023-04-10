@@ -3,7 +3,6 @@ import { Box, useTheme } from '@mui/material';
 import { motion } from 'framer-motion';
 
 // TODO: optimize this whole class, the further the ring goes the bigger the width gets, fix that, probably dont use scale
-// TODO: make ring size dynamic so its always the right size ( I mean radius )
 const SignalRing = ({ onRemove }) => {
     const t = useTheme();
     return (
