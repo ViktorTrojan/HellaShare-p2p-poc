@@ -8,11 +8,13 @@ function PeerManager() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    const peer = new Peer(undefined, {
-      host: 'localhost',
-      port: 9000,
-      path: '/hellashare_server'
-    });
+    // const peer = new Peer(undefined, {
+    //   host: 'localhost',
+    //   port: 9000,
+    //   path: '/hellashare_server'
+    // });
+
+    const peer = new Peer();
 
     peer.on('open', (id) => { // PeerID gets Generated
       setPeerData({ ...peerData, peer: peer, id: id });

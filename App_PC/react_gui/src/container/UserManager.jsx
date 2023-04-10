@@ -9,12 +9,19 @@ const UserManager = () => {
 
     const eventManager = (event, data) => {
         switch (event) {
+
+            // Set the ID
             case "SetID":
                 setId(data.peerID);
+
+                // Get all Peers
             case "UserList":
                 setPeers({ ...peers, data })
+
         }
     }
+
+
     const setId = (peerID) => {
         localStorage.setItem("peerID", peerID)
         ws.send(JSON.stringify({
@@ -25,6 +32,7 @@ const UserManager = () => {
     }
 
     useEffect(() => {
+        // TODO: save ip somewhere
         ws = new WebSocket("ws://127.0.0.1:8080")
         ws.onmessage = (msg) => {
             let data = JSON.parse(msg.data)
