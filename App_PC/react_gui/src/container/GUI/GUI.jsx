@@ -1,0 +1,21 @@
+import { Box, useTheme } from "@mui/material";
+import User from "./User";
+import SignalEffect from "./SignalEffect";
+import AllPeers from "./AllPeers";
+
+function GUI() {
+    const t = useTheme();
+
+    // TODO: fix z index for this crap
+    return (
+        <Box sx={{ bgcolor: 'background.default' }} className='-z-10 relative flex flex-col h-full'>
+            <SignalEffect />
+            
+            <AllPeers/>
+
+            <User />
+        </Box>
+    )
+}
+
+export default GUI;
