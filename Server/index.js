@@ -22,6 +22,7 @@ server.on("GetUsers", data => {
 
 server.on("SetId", data => {
     let { ws, peerID } = data
+    Logger.info(`[+] Peer: [${peerID}] connected!`)
     ws.send(JSON.stringify({ "peerID": peerID, event: "SetID" }))
 })
 

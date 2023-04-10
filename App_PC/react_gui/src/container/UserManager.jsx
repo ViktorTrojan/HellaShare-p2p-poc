@@ -14,9 +14,11 @@ const UserManager = () => {
             case "SetID":
                 setId(data.peerID);
 
-                // Get all Peers
-            case "UserList":
+            // Get all Peers
+            case "GetUsers": {
                 setPeers({ ...peers, data })
+                console.log(peers, data);
+            }
 
         }
     }
@@ -42,10 +44,8 @@ const UserManager = () => {
         }
     }, []);
 
-    return(
-        <div>
-            <AllPeers peers={peers}/>
-        </div>
+    return (
+        <AllPeers peers={peers} />
     );
 }
 
