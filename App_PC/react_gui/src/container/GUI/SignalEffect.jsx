@@ -4,11 +4,12 @@ import { motion } from 'framer-motion';
 
 // TODO: optimize this whole class, the further the ring goes the bigger the width gets, fix that, probably dont use scale
 const SignalRing = ({ onRemove }) => {
+    
     const t = useTheme();
     return (
         <motion.div
-            initial={{ scale: 0, }}
-            animate={{ scale: 6 }}
+            initial={{ scale: 0, opacity: 1}}
+            animate={{ scale: window.innerWidth>=600?15:6, opacity: 0}}
             transition={{ duration: 10,ease: 'linear' }}
             style={{borderColor: t.c.signal}}
             className="absolute rounded-full border w-40 h-40"
