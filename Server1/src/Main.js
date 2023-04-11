@@ -10,11 +10,22 @@ const uuid = require('uuid');
 
 const PORT = 8080;
 
+// TODO: create a peer class that has (name, id, private:socket)
 const peers = {};
 
 io.on("connection", (socket) => {
 
     // TODO: manage those ip groups
+
+
+    // will emit to the peer all the other Peers which are in the network [~self is excluded~]
+    function emitAllInNetwork(peerIP) {
+        // Emit the new peer ID to all peers with the same IP address
+        const peersInGroup = peers[peerIP].map((peer) => peer.id);
+
+        // returns the list of peers to the peer that joined
+        socket.emit("peers in group", peersInGroup);
+    }
 
     function addPeer(peerIP, peerObj) {
         // if Peer object doesnt exists, create it
@@ -27,19 +38,21 @@ io.on("connection", (socket) => {
     }
 
     // sends a broadcast in the network
-    function broadcastInNetwork(ip) {
-        peersByIp[peerIpAddress].forEach((peer) => {
-            peer.emit("new peer", { id, name: data.name });
+    function broadcastInNetwork(peerIP, eventName, msg) {
+        peers[peerIP].forEach((peer) => {
+            peer.socket.emit(eventName, msg);
         });
     }
 
-    // will emit to the peer all the other Peers which are in the network [~self is excluded~]
-    function emitAllInNetwork() {
-        // Emit the new peer ID to all peers with the same IP address
-        const peersInGroup = peersByIp[peerIpAddress].map((peer) => peer.id);
+    // emits to the peer the other peers in the network
+    function getPeersInNetwork(peerIP, excludePeerID) {
+        let peersInGroup = peers[peerIP].map(({ socket, ...peer }) => peer); // exclude the socket object
 
-        // Emit the list of peers in the group to the new peer
-        socket.emit("peers in group", peersInGroup);
+        // exclude the Peer from the list which will receive all the other peers in the network
+        peersInGroup = peersInGroup.filter(peer => peer.id !== excludePeerID);
+
+        // returns the list of peers in the same network to the peer/user that joined
+        socket.emit("peers in network", peersInGroup);
     }
 
     socket.on('init', (data) => {
@@ -48,12 +61,15 @@ io.on("connection", (socket) => {
         // create unique id for that user
         const id = uuid.v4();
         const ip = socket.handshake.address;
-        addPeer(ip, { id: id, name: data.name });
+        addPeer(ip, { id: id, name: data.name, socket: socket });
 
         Logger.info("[+] Peer joined: [" + data.name + "] " + id);
 
-        // Emit the list of peers to all peers with the same IP address
-        socket.broadcast.emit("new peer", { id: id, name: data.name });
+        // Tell the other Peers in the Network that a new Peer Joined
+        broadcastInNetwork(ip, 'new peer', { id: id, name: data.name });
+
+        // return an obj of peers in the same network
+        getPeersInNetwork(ip, excludePeerID);
     });
 
     // Add new users to the array
@@ -65,12 +81,27 @@ io.on("connection", (socket) => {
 
     // Remove users from the array when they leave
     socket.on("disconnect", () => {
-        console.log("D")
-        const index = users.indexOf(socket.username);
-        if (index > -1) {
-            users.splice(index, 1);
-            console.log(`${socket.username} left the chat`);
-            io.emit("user left", `${socket.username} left the chat`);
+        // get the IP of the peer to find out in which network hes at
+        const ip = socket.handshake.address;
+        const peerList = peers[ip];
+        if (peerList) {
+            const disconnectedPeer = peerList.find((peer) => peer.socket === socket); // get the Dissconnected Peer
+            if (disconnectedPeer) {
+                const index = peerList.indexOf(disconnectedPeer);
+                if (index > -1) {
+                    peerList.splice(index, 1);
+                    Logger.info("[-] Peer disconnected: [" + disconnectedPeer.name + "] " + disconnectedPeer.id);
+
+                    // If the list is now empty, remove the empty object from the peers object
+                    if (peerList.length === 0) {
+                        Logger.info(`[-] Removing Empty Network [IP:${ip}] after Dissconnection of Peer [${disconnectedPeer.name} : ${disconnectedPeer.id}]`);
+                        delete peers[ip];
+                    }
+
+                    // Tell the other Peers in the Network that the Peer left
+                    //broadcastInNetwork(ip, 'peer dced', { id: disconnectedPeer.id, name: disconnectedPeer.name });
+                }
+            }
         }
     });
 

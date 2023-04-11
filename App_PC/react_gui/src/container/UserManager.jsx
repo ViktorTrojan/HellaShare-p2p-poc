@@ -40,9 +40,19 @@ const UserManager = () => {
             console.log("[+] Connected to server");
 
             // "init" To Init ourselves and get the other peers in our network
-            socket.emit("init", {name: 'MrSus'});
+            socket.emit("init", { name: 'MrSus' });
         });
         socket.on("disconnect", () => console.log("[-] Disconnected from server"));
+
+        socket.on('peers in network', (peersInNetwork) => {
+            console.log("[+] Received other Peers in Network:");
+            console.log(peersInNetwork);
+        })
+
+        socket.on('new peer', (newPeer) => {
+            console.log("[+] Received recently joined Peer:");
+            console.log(newPeer);
+        })
 
         socket.on("user joined", (user) => {
             setUsers((prevUsers) => [...prevUsers, user]);
