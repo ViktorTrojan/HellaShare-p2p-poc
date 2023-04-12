@@ -12,6 +12,11 @@ const PeerJSManager = ({ peers, peerID }) => {
     const [connections, setConnections] = useState([]);
     const [initialized, setInitialized] = useState(false);
     window.connections = connections;
+
+    const handleData=(data)=>{
+        alert(data)
+    }
+
     useEffect(() => {
         const peer = new Peer(peerID);
         peer.on('open', (id) => { // Event for when Peer obj finished initializing
@@ -21,7 +26,7 @@ const PeerJSManager = ({ peers, peerID }) => {
         peer.on('connection', (newConn) => { // new Peer connected to us
             setConnections((prevConnections) => [...prevConnections, newConn]);
             newConn.on('data', (data) => {
-                alert(`Received: ${data}`);
+                handleData(data)
             });
             window.connections = connections;
 
@@ -56,11 +61,11 @@ const PeerJSManager = ({ peers, peerID }) => {
         const newConn = peerData.peer.connect(peerID);
         newConn.on('open', () => { // after opening connection to peer?
             setConnections((prevConnections) => [...prevConnections, newConn]);
-            newConn.send("a")
+            window.connections = connections;
         });
 
         newConn.on('data', (data) => {
-            console.log('Received:', data);
+            handleData(data)
         });
 
         newConn.on('close', () => {
