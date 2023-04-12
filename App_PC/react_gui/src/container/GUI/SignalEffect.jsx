@@ -41,7 +41,7 @@ function SignalEffect() {
     };
 
     return (
-        <Box className="-z-20 absolute inset-0">
+        <Box className="z-10 absolute inset-0">
             <Box className="relative flex justify-center items-end h-full">
                 {signalRings.map((ring) =>
                     !ring.remove ? (

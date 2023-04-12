@@ -6,23 +6,12 @@ import { useEffect, useState } from "react";
 
 function GUI() {
     const t = useTheme();
-    const [pcUsername, setPcUsername] = useState();
-
-    useEffect(() => {
-        async function fetchPCUsername() {
-            const usrName = await window.saucer?.call("exposed_getPCUsername", []);
-            setPcUsername(usrName!==undefined?usrName:localStorage.getItem("username"));
-        }
-
-        fetchPCUsername();
-    }, []);
-
     // TODO: fix z index for this crap
     return (
-        <Box sx={{ bgcolor: 'background.default' }} className='-z-10 relative flex flex-col h-full'>
+        <Box sx={{ bgcolor: 'background.default' }} className='relative flex flex-col h-full'>
             <SignalEffect />
             <UserManager />
-            <User pcUsername={pcUsername} />
+            <User pcUsername/>
         </Box>
     )
 }
