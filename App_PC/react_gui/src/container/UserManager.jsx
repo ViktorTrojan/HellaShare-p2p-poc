@@ -1,39 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import AllPeers from './GUI/AllPeers';
 
+import Peer from 'peerjs';
+
 import io from "socket.io-client";
 const socket = io("http://localhost:8080");
 
-// TODO: rename to PeerManager
+// TODO: This is like the peer.js Manager
+const PeerJSManager = ({ peerID }) => {
+    useEffect(() => {
+        const peer = new Peer(peerID);
+
+        peer.on('open', (id) => { // Event for when Peer obj finished initializing
+            //setPeerData({ ...peerData, peer: peer, id: id });
+        });
+    }, []);
+}
+
+// TODO: This is for like socket.io server management
 const UserManager = () => {
     // stors all the peers information
-    const [peers, setPeers] = useState()
-    let ws;
+    const [peers, setPeers] = useState([])
 
-    const eventManager = (event, data) => {
-        switch (event) {
-
-            // Set the ID
-            case "SetID":
-                setId(data.peerID);
-
-            // Get all Peers
-            case "GetUsers": {
-                setPeers({ ...peers, data })
-                console.log(peers, data);
-            }
-
-        }
-    }
-
-    const setId = (peerID) => {
-        localStorage.setItem("peerID", peerID)
-        ws.send(JSON.stringify({
-            "event": "InitUser",
-            "username": localStorage.getItem("username"),
-            "peerID": localStorage.getItem("peerID"),
-        }))
-    }
+    // our peer information
+    const [peer, setPeer] = useState([]);
 
     useEffect(() => {
         socket.on("connect", () => {
@@ -44,51 +34,44 @@ const UserManager = () => {
         });
         socket.on("disconnect", () => console.log("[-] Disconnected from server"));
 
+        // When our init was successful, we get a PeerID
+        socket.on('init successful', (data) => {
+            setPeer(data);
+        })
+
         socket.on('peers in network', (peersInNetwork) => {
-            console.log("[+] Received other Peers in Network:");
-            console.log(peersInNetwork);
+            console.log("[+] Received other Peers in Network:", peersInNetwork);
+            // add them to the peers Arr
+            setPeers((prevPeers) => [...prevPeers, ...peersInNetwork]);
         })
 
         socket.on('new peer', (newPeer) => {
-            console.log("[+] Received recently joined Peer:");
-            console.log(newPeer);
+            console.log("[+] Received recently joined Peer:", newPeer);
+            // add the newly joined peer to the array
+            setPeers((prevPeers) => [...prevPeers, newPeer]);
         })
 
-        socket.on("user joined", (user) => {
-            setUsers((prevUsers) => [...prevUsers, user]);
-        });
-
-        socket.on("user left", (user) => {
-            setUsers((prevUsers) => prevUsers.filter((u) => u !== user));
-        });
-
-        socket.on("chat message", (message) => {
-            setMessages((prevMessages) => [...prevMessages, message]);
-        });
+        socket.on('peer dced', (dcedPeer) => {
+            console.log("[-] Peer Dissconnected:", dcedPeer);
+            // remove him from the peers array
+            setPeers(prevPeers => prevPeers.filter(peer => peer.id !== dcedPeer.id));
+        })
 
         return () => {
             socket.off("connect");
             socket.off("disconnect");
-            socket.off("user joined");
-            socket.off("user left");
-            socket.off("chat message");
+            socket.off("init successful");
+            socket.off("peers in network");
+            socket.off("new peer");
+            socket.off("peer dced");
             socket.close()
         };
     }, []);
-
-    // useEffect(() => {
-    //     // TODO: save ip somewhere
-    //     ws = new WebSocket("ws://127.0.0.1:8080")
-    //     ws.onmessage = (msg) => {
-    //         let data = JSON.parse(msg.data)
-    //         let { event, peerID } = data
-    //         eventManager(event, data);
-
-    //     }
-    // }, []);
-
     return (
-        <AllPeers peers={peers} />
+        <div className='flex w-full h-full'>
+            {peer.id && <PeerJSManager peerID={peer.id} />}
+            <AllPeers peers={peers} />
+        </div>
     );
 }
 

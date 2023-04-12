@@ -17,16 +17,6 @@ io.on("connection", (socket) => {
 
     // TODO: manage those ip groups
 
-
-    // will emit to the peer all the other Peers which are in the network [~self is excluded~]
-    function emitAllInNetwork(peerIP) {
-        // Emit the new peer ID to all peers with the same IP address
-        const peersInGroup = peers[peerIP].map((peer) => peer.id);
-
-        // returns the list of peers to the peer that joined
-        socket.emit("peers in group", peersInGroup);
-    }
-
     function addPeer(peerIP, peerObj) {
         // if Peer object doesnt exists, create it
         if (!peers[peerIP]) {
@@ -37,10 +27,12 @@ io.on("connection", (socket) => {
         peers[peerIP].push(peerObj);
     }
 
-    // sends a broadcast in the network
-    function broadcastInNetwork(peerIP, eventName, msg) {
+    // sends a broadcast in the network, except to the excludePeerID
+    function broadcastInNetwork(peerIP, eventName, msg, excludePeerID) {
         peers[peerIP].forEach((peer) => {
-            peer.socket.emit(eventName, msg);
+            if (peer.id !== excludePeerID) {
+                peer.socket.emit(eventName, msg);
+            }
         });
     }
 
@@ -50,6 +42,7 @@ io.on("connection", (socket) => {
 
         // exclude the Peer from the list which will receive all the other peers in the network
         peersInGroup = peersInGroup.filter(peer => peer.id !== excludePeerID);
+        if (peersInGroup.length === 0) return; // if no other people are in the network, dont emit the event
 
         // returns the list of peers in the same network to the peer/user that joined
         socket.emit("peers in network", peersInGroup);
@@ -66,11 +59,13 @@ io.on("connection", (socket) => {
         Logger.info("[+] Peer joined: [" + data.name + "] " + id);
 
         // Tell the other Peers in the Network that a new Peer Joined
-        broadcastInNetwork(ip, 'new peer', { id: id, name: data.name });
+        broadcastInNetwork(ip, 'new peer', { id: id, name: data.name }, id);
 
         // return an obj of peers in the same network
-        // getPeersInNetwork(ip, excludePeerID); i guess you meant to do this thing bellow
-        getPeersInNetwork(ip, id)
+        getPeersInNetwork(ip, id);
+
+        // return that the init was successfully
+        socket.emit('init successful', { id: id, name: data.name });
     });
 
     // Add new users to the array
@@ -97,10 +92,10 @@ io.on("connection", (socket) => {
                     if (peerList.length === 0) {
                         Logger.info(`[-] Removing Empty Network [IP:${ip}] after Dissconnection of Peer [${disconnectedPeer.name} : ${disconnectedPeer.id}]`);
                         delete peers[ip];
+                    } else { // network has peers in it
+                        // Tell the other Peers in the Network that the Peer left
+                        broadcastInNetwork(ip, 'peer dced', { id: disconnectedPeer.id, name: disconnectedPeer.name });
                     }
-
-                    // Tell the other Peers in the Network that the Peer left
-                    //broadcastInNetwork(ip, 'peer dced', { id: disconnectedPeer.id, name: disconnectedPeer.name });
                 }
             }
         }
