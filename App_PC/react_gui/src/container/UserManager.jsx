@@ -7,14 +7,54 @@ import io from "socket.io-client";
 const socket = io("http://localhost:8080");
 
 // TODO: This is like the peer.js Manager
-const PeerJSManager = ({ peerID }) => {
+const PeerJSManager = ({ peers, peerID }) => {
+    const [peerData, setPeerData] = useState({ peer: null, id: null });
+    const [connections, setConnections] = useState([]);
+
     useEffect(() => {
         const peer = new Peer(peerID);
 
         peer.on('open', (id) => { // Event for when Peer obj finished initializing
-            //setPeerData({ ...peerData, peer: peer, id: id });
+            setPeerData({ ...peerData, peer: peer, id: id });
         });
+
+        peer.on('connection', (newConn) => { // new Peer connected to us
+            console.log("[+] Connection established!", newConn);
+            setConnections((prevConnections) => [...prevConnections, newConn]);
+
+            newConn.on('data', (data) => {
+                console.log('Received:', data);
+            });
+
+            newConn.on('close', () => {
+                setConnections((prevConnections) =>
+                    prevConnections.filter((conn) => conn !== newConn)
+                );
+            });
+        });
+
+        return () => {
+            peer.destroy();
+        };
     }, []);
+
+    const handleConnect = (peerID) => { // call this to connect to a peer with the peerID
+        const newConn = peerData.peer.connect(peerID);
+
+        newConn.on('open', () => { // after opening connection to peer?
+            setConnections((prevConnections) => [...prevConnections, newConn]);
+        });
+
+        newConn.on('data', (data) => {
+            console.log('Received:', data);
+        });
+
+        newConn.on('close', () => {
+            setConnections((prevConnections) =>
+                prevConnections.filter((conn) => conn !== newConn)
+            );
+        });
+    };
 }
 
 // TODO: This is for like socket.io server management
@@ -69,7 +109,7 @@ const UserManager = () => {
     }, []);
     return (
         <div className='flex w-full h-full'>
-            {peer.id && <PeerJSManager peerID={peer.id} />}
+            {peer.id && <PeerJSManager peers={peers} peerID={peer.id} />}
             <AllPeers peers={peers} />
         </div>
     );

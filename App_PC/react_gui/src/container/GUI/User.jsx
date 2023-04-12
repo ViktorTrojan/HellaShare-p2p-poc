@@ -5,22 +5,19 @@ import { RiComputerLine } from "react-icons/ri";
 
 
 // User Section Part
-function User() {
+function User({ pcUsername, setPcUsername }) {
     const t = useTheme();
-    
-    const [pcUsername, setPcUsername] = useState();
 
-    
     useEffect(() => {
         async function fetchPCUsername() {
             const usrName = await window.saucer?.call("exposed_getPCUsername", []);
-            setPcUsername(usrName!==undefined?usrName:localStorage.getItem("username"));
+            setPcUsername(usrName !== undefined ? usrName : localStorage.getItem("username"));
         }
         fetchPCUsername();
     }, [localStorage.getItem("username")]);
 
-    const setName = (e)=>{ 
-        localStorage.setItem("username",e.target.value)
+    const setName = (e) => {
+        localStorage.setItem("username", e.target.value)
         setPcUsername(localStorage.getItem("username"))
     };
 
@@ -33,7 +30,7 @@ function User() {
                 <RiComputerLine color={t.palette.text.primary} size={50} />
 
                 <Box className='flex flex-col'>
-                    <input className="bg-transparent text-white cursor-text" value={pcUsername} onChange={setName}/>
+                    <input className="bg-transparent text-white cursor-text" value={pcUsername} onChange={setName} />
                     <Typography color='text.secondary' sx={{ fontSize: 12 }}>PC - Win 10 Pro</Typography>
                 </Box>
             </Box>

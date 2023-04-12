@@ -5,13 +5,14 @@ import UserManager from "../UserManager";
 import { useEffect, useState } from "react";
 
 function GUI() {
+    const [pcUsername, setPcUsername] = useState('Sus');
     const t = useTheme();
     // TODO: fix z index for this crap
     return (
         <Box sx={{ bgcolor: 'background.default' }} className='relative flex flex-col h-full'>
             <SignalEffect />
             <UserManager />
-            <User pcUsername/>
+            <User pcUsername={pcUsername} setPcUsername={setPcUsername} />
         </Box>
     )
 }
