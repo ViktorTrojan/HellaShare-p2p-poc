@@ -11,16 +11,14 @@ function User({ pcUsername, setPcUsername }) {
     useEffect(() => {
         async function fetchPCUsername() {
             const usrName = await window.saucer?.call("exposed_getPCUsername", []);
-            setPcUsername(usrName !== undefined ? usrName : localStorage.getItem("username"));
+            if (usrName !== undefined) {
+                setPcUsername(usrName);
+                localStorage.setItem("username",usrName)
+            }
+            setPcUsername(localStorage.getItem("username"))
         }
         fetchPCUsername();
     }, [localStorage.getItem("username")]);
-
-    const setName = (e) => {
-        localStorage.setItem("username", e.target.value)
-        setPcUsername(localStorage.getItem("username"))
-    };
-
 
 
     return (
@@ -30,7 +28,7 @@ function User({ pcUsername, setPcUsername }) {
                 <RiComputerLine color={t.palette.text.primary} size={50} />
 
                 <Box className='flex flex-col'>
-                    <input className="bg-transparent text-white cursor-text" value={pcUsername} onChange={setName} />
+                    <Typography color='text.primary'>{pcUsername}</Typography>
                     <Typography color='text.secondary' sx={{ fontSize: 12 }}>PC - Win 10 Pro</Typography>
                 </Box>
             </Box>

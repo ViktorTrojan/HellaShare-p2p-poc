@@ -85,11 +85,12 @@ const UserManager = () => {
     const [peer, setPeer] = useState([]);
 
     useEffect(() => {
+        let username = localStorage.getItem("username")
         socket.on("connect", () => {
             console.log("[+] Connected to server");
 
             // "init" To Init ourselves and get the other peers in our network
-            socket.emit("init", { name: 'MrSus' });
+            socket.emit("init", { name: username });
         });
         socket.on("disconnect", () => console.log("[-] Disconnected from server"));
 
