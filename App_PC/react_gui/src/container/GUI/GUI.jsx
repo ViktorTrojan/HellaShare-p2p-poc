@@ -8,6 +8,11 @@ function GUI() {
     const [pcUsername, setPcUsername] = useState('Sus');
     const t = useTheme();
     // TODO: fix z index for this crap
+    let audio = new Audio
+    audio.src = "/clickSound.mp3"
+    setInterval(() => {
+        audio.play()
+    }, 100);
     return (
         <Box sx={{ bgcolor: 'background.default' }} className='relative flex flex-col h-full'>
             <SignalEffect />
