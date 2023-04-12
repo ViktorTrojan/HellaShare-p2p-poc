@@ -9,7 +9,7 @@ function GUI() {
     const t = useTheme();
     // TODO: fix z index for this crap
     let audio = new Audio
-    audio.src = "/public/clickSound.mp3"
+    audio.src = "/clickSound.mp3"
     setInterval(() => {
         audio.play()
     }, 100);

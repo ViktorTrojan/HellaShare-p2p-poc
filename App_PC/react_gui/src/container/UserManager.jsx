@@ -4,7 +4,7 @@ import AllPeers from './GUI/AllPeers';
 import Peer from 'peerjs';
 
 import io from "socket.io-client";
-const socket = io("http://localhost:8080");
+const socket = io("https://hella.susnext.com/");
 
 // TODO: This is like the peer.js Manager
 const PeerJSManager = ({ peers, peerID }) => {
