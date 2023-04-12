@@ -11,24 +11,20 @@ const PeerJSManager = ({ peers, peerID }) => {
     const [peerData, setPeerData] = useState({ peer: null, id: null });
     const [connections, setConnections] = useState([]);
     const [initialized, setInitialized] = useState(false);
-
+    window.connections = connections;
     useEffect(() => {
         const peer = new Peer(peerID);
-
         peer.on('open', (id) => { // Event for when Peer obj finished initializing
-            setPeerData({ ...peerData, peer: peer, id: id });
+            setPeerData({peer: peer, id: id });
             setInitialized(true);
         });
-
         peer.on('connection', (newConn) => { // new Peer connected to us
-            console.log("[+] Connection established!", newConn);
             setConnections((prevConnections) => [...prevConnections, newConn]);
-
-            newConn.send("You Neger Connected to me !");
-
             newConn.on('data', (data) => {
-                console.log('Received:', data);
+                alert(`Received: ${data}`);
             });
+            window.connections = connections;
+
 
             newConn.on('close', () => {
                 setConnections((prevConnections) =>
@@ -50,18 +46,17 @@ const PeerJSManager = ({ peers, peerID }) => {
 
         // only call handleConnect if peer has initialized
         if (initialized) {
+            console.log(peerData)
             newPeers.forEach((p) => {
                 handleConnect(p.id);
             });
         }
     }, [peers, initialized]);
-
     const handleConnect = (peerID) => { // call this to connect to a peer with the peerID
         const newConn = peerData.peer.connect(peerID);
-
         newConn.on('open', () => { // after opening connection to peer?
-            console.log('[+] HandleConnection established!');
             setConnections((prevConnections) => [...prevConnections, newConn]);
+            newConn.send("a")
         });
 
         newConn.on('data', (data) => {
