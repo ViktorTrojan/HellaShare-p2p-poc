@@ -10,9 +10,8 @@ function GUI() {
 
     useEffect(() => {
         async function fetchPCUsername() {
-            const usrName = await window.saucer.call("exposed_getPCUsername", []);
-            console.log(usrName);
-            setPcUsername(usrName);
+            const usrName = await window.saucer?.call("exposed_getPCUsername", []);
+            setPcUsername(usrName!==undefined?usrName:localStorage.getItem("username"));
         }
 
         fetchPCUsername();

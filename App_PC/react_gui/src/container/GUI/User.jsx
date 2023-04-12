@@ -14,7 +14,7 @@ function User({ pcUsername }) {
                 <RiComputerLine color={t.palette.text.primary} size={50} />
 
                 <Box className='flex flex-col'>
-                    <Typography color='text.primary'>{localStorage.getItem("username") ? localStorage.getItem("username") : pcUsername}</Typography>
+                    <Typography color='text.primary'>{pcUsername}</Typography>
                     <Typography color='text.secondary' sx={{ fontSize: 12 }}>PC - Win 10 Pro</Typography>
                 </Box>
             </Box>
