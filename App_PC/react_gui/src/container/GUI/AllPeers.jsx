@@ -23,7 +23,7 @@ function AllPeers({ peers }) {
     }, []);
 
     return (
-        <div className="z-10 flex h-full flex-wrap gap-2">
+        <div className="z-10 flex justify-center h-full flex-wrap gap-2">
             {
                 peers.map((user, idx) => {
                     return <Peer key={idx} user={user}/>
