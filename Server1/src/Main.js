@@ -69,7 +69,8 @@ io.on("connection", (socket) => {
         broadcastInNetwork(ip, 'new peer', { id: id, name: data.name });
 
         // return an obj of peers in the same network
-        getPeersInNetwork(ip, excludePeerID);
+        // getPeersInNetwork(ip, excludePeerID); i guess you meant to do this thing bellow
+        getPeersInNetwork(ip, id)
     });
 
     // Add new users to the array

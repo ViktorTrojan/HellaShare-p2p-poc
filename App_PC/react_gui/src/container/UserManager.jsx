@@ -72,6 +72,7 @@ const UserManager = () => {
             socket.off("user joined");
             socket.off("user left");
             socket.off("chat message");
+            socket.close()
         };
     }, []);
 
