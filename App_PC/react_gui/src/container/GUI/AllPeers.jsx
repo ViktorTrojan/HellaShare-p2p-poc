@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 const Peer = ({ user }) => {
     return (
-        <Box className='w-20 h-20 bg-slate-100 rounded-full'>
+        <Box className='w-20 h-20 bg-slate-100 rounded-full text-center'>
             {user.name}
 
         </Box>
