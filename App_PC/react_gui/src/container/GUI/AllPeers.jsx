@@ -7,7 +7,6 @@ const Peer = ({ user }) => {
 
     const handleClick=(id)=>{
         let peer = window.connections.filter(con=>con.peer==id)[0]
-        console.log("clicked")
         peer.send("penis")
     }
 
