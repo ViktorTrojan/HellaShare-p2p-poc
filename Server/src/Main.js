@@ -8,7 +8,7 @@ app.use(cors());
 const Logger = require("./util/Logger");
 const uuid = require('uuid');
 
-const PORT = 8080;
+const PORT = 32891;
 
 // TODO: create a peer class that has (name, id, private:socket)
 const peers = {};
@@ -56,7 +56,7 @@ io.on("connection", (socket) => {
         const ip = socket.handshake.address;
         addPeer(ip, { id: id, name: data.name, socket: socket });
 
-        Logger.info("[+] Peer joined: [" + data.name + "] " + id);
+        Logger.info(`[+] [IP:${ip}] Peer joined: [${data.name}] ${id}`);
 
         // Tell the other Peers in the Network that a new Peer Joined
         broadcastInNetwork(ip, 'new peer', { id: id, name: data.name }, id);
@@ -66,13 +66,6 @@ io.on("connection", (socket) => {
 
         // return that the init was successfully
         socket.emit('init successful', { id: id, name: data.name });
-    });
-
-    // Add new users to the array
-    socket.on("new user", (user) => {
-        users.push(user);
-        console.log(`${user} joined the chat`);
-        io.emit("user joined", `${user} joined the chat`);
     });
 
     // Remove users from the array when they leave
@@ -86,7 +79,7 @@ io.on("connection", (socket) => {
                 const index = peerList.indexOf(disconnectedPeer);
                 if (index > -1) {
                     peerList.splice(index, 1);
-                    Logger.info("[-] Peer disconnected: [" + disconnectedPeer.name + "] " + disconnectedPeer.id);
+                    Logger.info(`[+] [IP:${ip}] Peer disconnected: [${disconnectedPeer.name}] ${disconnectedPeer.id}`);
 
                     // If the list is now empty, remove the empty object from the peers object
                     if (peerList.length === 0) {
@@ -100,22 +93,10 @@ io.on("connection", (socket) => {
             }
         }
     });
-
-    // Broadcast messages to all users
-    socket.on("chat message", (msg) => {
-        console.log(`${socket.username}: ${msg}`);
-        io.emit("chat message", `${socket.username}: ${msg}`);
-    });
-
-    // Set the username for the socket
-    socket.on("set username", (username) => {
-        socket.username = username;
-    });
 });
-
-// Set up the Express server
-app.get("/", (req, res) => {
-    res.sendFile(__dirname + "/index.html");
-});
+// // Set up the Express server
+// app.get("/", (req, res) => {
+//     res.sendFile(__dirname + "/index.html");
+// });
 
 http.listen(PORT, () => { Logger.info("[+] Started the Server on Port: " + PORT) });
