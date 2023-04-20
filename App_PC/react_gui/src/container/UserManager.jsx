@@ -6,21 +6,30 @@ import Peer from 'peerjs';
 import io from "socket.io-client";
 const socket = io("https://hella.susnext.com/");
 
-// TODO: This is like the peer.js Manager
+// All Peers get Passed here and the Real Peer-To-Peer connection gets established here
 const PeerJSManager = ({ peers, peerID }) => {
-    const [peerData, setPeerData] = useState({ peer: null, id: null });
-    const [connections, setConnections] = useState([]);
+    const [peerData, setPeerData] = useState({ peer: null, id: null }); // our Peer Information
+    const [connections, setConnections] = useState([]); // connections of other Peers
     const [initialized, setInitialized] = useState(false);
-    window.connections = connections;
 
-    const handleData=(data)=>{
-        alert(data)
-    }
+    const handleData = (data) => {
+        if (data.type === 'file') {
+            const blob = new Blob([data.data], { type: data.mime });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = data.name;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+    };
 
     useEffect(() => {
         const peer = new Peer(peerID);
         peer.on('open', (id) => { // Event for when Peer obj finished initializing
-            setPeerData({peer: peer, id: id });
+            setPeerData({ peer: peer, id: id });
             setInitialized(true);
         });
         peer.on('connection', (newConn) => { // new Peer connected to us
@@ -28,8 +37,6 @@ const PeerJSManager = ({ peers, peerID }) => {
             newConn.on('data', (data) => {
                 handleData(data)
             });
-            window.connections = connections;
-
 
             newConn.on('close', () => {
                 setConnections((prevConnections) =>
@@ -51,7 +58,6 @@ const PeerJSManager = ({ peers, peerID }) => {
 
         // only call handleConnect if peer has initialized
         if (initialized) {
-            console.log(peerData)
             newPeers.forEach((p) => {
                 handleConnect(p.id);
             });
@@ -61,7 +67,6 @@ const PeerJSManager = ({ peers, peerID }) => {
         const newConn = peerData.peer.connect(peerID);
         newConn.on('open', () => { // after opening connection to peer?
             setConnections((prevConnections) => [...prevConnections, newConn]);
-            window.connections = connections;
         });
 
         newConn.on('data', (data) => {
@@ -74,9 +79,13 @@ const PeerJSManager = ({ peers, peerID }) => {
             );
         });
     };
+
+    return (
+        <AllPeers peers={peers} peerConnections={connections} />
+    );
 }
 
-// TODO: This is for like socket.io server management
+// This is the Server communication with socket.io that receives and sends out peer information
 const UserManager = () => {
     // stors all the peers information
     const [peers, setPeers] = useState([])
@@ -127,10 +136,10 @@ const UserManager = () => {
             socket.close()
         };
     }, []);
+
     return (
         <div className='flex w-full h-full'>
             {peer.id && <PeerJSManager peers={peers} peerID={peer.id} />}
-            <AllPeers peers={peers} />
         </div>
     );
 }

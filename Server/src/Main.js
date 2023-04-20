@@ -53,7 +53,7 @@ io.on("connection", (socket) => {
         // TODO: check if there is someone in the network with the same name
         // create unique id for that user
         const id = uuid.v4();
-        const ip = socket.handshake.address;
+        const ip = socket.request.headers['true-client-ip']; //socket.handshake.address;
         addPeer(ip, { id: id, name: data.name, socket: socket });
 
         Logger.info(`[+] [IP:${ip}] Peer joined: [${data.name}] ${id}`);
@@ -71,7 +71,7 @@ io.on("connection", (socket) => {
     // Remove users from the array when they leave
     socket.on("disconnect", () => {
         // get the IP of the peer to find out in which network hes at
-        const ip = socket.handshake.address;
+        const ip = socket.request.headers['true-client-ip'];
         const peerList = peers[ip];
         if (peerList) {
             const disconnectedPeer = peerList.find((peer) => peer.socket === socket); // get the Dissconnected Peer

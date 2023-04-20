@@ -1,32 +1,29 @@
-import { Box } from "@mui/material";
 import { useEffect, useState } from "react";
 
+const Peer = ({ peer, conn }) => {
 
-
-const Peer = ({ user }) => {
-
-    const handleClick=(id)=>{
-        let peer = window.connections.filter(con=>con.peer==id)[0]
-        peer.send("penis")
+    const handleClick = (event) => {
+        const file = event.target.files[0];
+        conn.send({ type: 'file', name: file.name, data: file });
     }
 
     return (
-        <Box className='w-20 h-20 bg-slate-100 rounded-full text-center' id={user.id} onClick={() => handleClick(user.id)}>
-            {user.name}
-        </Box>
+        <div>
+            <input type="file" onChange={handleClick} className='w-20 h-20 bg-slate-100 rounded-full text-center' id={peer.id} />
+            {peer.name}
+        </div>
     );
 }
 
-function AllPeers({ peers }) {
-
-    useEffect(() => {
-    }, []);
+function AllPeers({ peers, peerConnections }) {
 
     return (
         <div className="z-10 flex justify-center h-full flex-wrap gap-2">
             {
-                peers.map((user, idx) => {
-                    return <Peer key={idx} user={user}/>
+                peers.map((peer, idx) => {
+                    // find the corresponding peerConnection object
+                    const peerConnection = peerConnections.find(pc => pc.peer === peer.id);
+                    return <Peer key={idx} peer={peer} conn={peerConnection} />
                 })
             }
         </div>
